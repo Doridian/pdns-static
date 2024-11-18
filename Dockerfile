@@ -1,4 +1,4 @@
-FROM gentoo/stage3 AS builder
+FROM docker.io/gentoo/stage3 AS builder
 
 COPY make.conf /etc/portage/make.conf
 RUN sed "s~__NPROC__~$(nproc)~g"  -i /etc/portage/make.conf
@@ -9,6 +9,8 @@ RUN emerge --sync && \
             --deep \
             --exclude=app-portage/portage-utils \
             net-dns/pdns
+
+COPY make-pdns.conf /etc/portage/make.conf
 
 FROM scratch AS default
 
