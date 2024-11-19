@@ -55,6 +55,7 @@ RUN ./configure \
         --prefix=/ \ 
         --runstatedir=/ \
         --sysconfdir=/config \
+        --enable-dns-over-tls \
         --with-service-user=pdns \
         --with-service-group=pdns \
         --with-modules="bind lua2 pipe" \
