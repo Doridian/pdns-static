@@ -62,9 +62,9 @@ RUN ./configure \
         --enable-lto || true
 
 
-RUN exit 0 ; make -j$(nproc)
+RUN make -j$(nproc)
 
-RUN exit 0 ; mkdir -p /out /out/config && \
+RUN mkdir -p /out /out/config && \
     strip --strip-all -o /out/pdns_server pdns/pdns_server && \
     strip --strip-all -o /out/pdns_control pdns/pdns_control && \
     strip --strip-all -o /out/pdnsutil pdns/pdnsutil && \
