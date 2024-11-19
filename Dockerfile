@@ -52,13 +52,15 @@ RUN ./configure \
         --enable-static \
         --enable-static-boost \
         --disable-shared \
-        --prefix=/ \ 
+        --prefix=/ \
         --runstatedir=/ \
         --sysconfdir=/config \
+        --with-libssl \
+        --enable-ipcipher \
         --enable-dns-over-tls \
         --with-service-user=pdns \
         --with-service-group=pdns \
-        --with-modules="bind lua2 pipe" \
+        --with-modules="bind lua2 pipe remote" \
         --with-dynmodules="" \
         --with-lua \
         --enable-lto
