@@ -59,7 +59,8 @@ RUN ./configure \
         --with-service-group=pdns \
         --with-modules="bind lua2 pipe" \
         --with-dynmodules="" \
-        --with-lua
+        --with-lua \
+        --enable-lto
 
 RUN make -j$(nproc)
 
