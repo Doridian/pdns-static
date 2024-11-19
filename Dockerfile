@@ -78,7 +78,7 @@ RUN strip --strip-all -o /out/pdns_server pdns/pdns_server && \
 
 FROM scratch AS default
 
-COPY --from=builder /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
+COPY --from=builder /lib/ld-musl-*.so* /lib/
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /out /
 
