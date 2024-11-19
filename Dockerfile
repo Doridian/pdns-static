@@ -1,20 +1,66 @@
-FROM docker.io/gentoo/stage3 AS builder
+FROM alpine:3.20.3 AS builder
 
-COPY make.conf /etc/portage/make.conf
-RUN sed "s~__NPROC__~$(nproc)~g"  -i /etc/portage/make.conf
+RUN apk --no-cache add \
+    build-base \
+    boost-dev \
+    curl \
+    git \
+    wget \
+    openssl-dev \
+    protobuf-dev \
+    sqlite-dev \
+    curl-dev \
+    yaml-cpp-dev \
+    luajit-dev \
+    libc++-static \
+    ncurses-static \
+    curl-static \
+    clang-static \
+    llvm-static \
+    glib-static \
+    boost-static \
+    openssl-libs-static \
+    c-ares-static \
+    nghttp2-static \
+    libidn2-static \
+    libpsl-static \
+    zstd-static \
+    zlib-static \
+    brotli-static \
+    libunistring-static \
+    upx
 
-RUN emerge --sync && \
-    emerge --update \
-            --newuse \
-            --deep \
-            --exclude=app-portage/portage-utils \
-            net-dns/pdns
+ENV PDNS_VERSION=4.9.2
+RUN wget "https://downloads.powerdns.com/releases/pdns-${PDNS_VERSION}.tar.bz2" -O "/tmp/pdns-${PDNS_VERSION}.tar.bz2" && \
+    tar -xvf "/tmp/pdns-${PDNS_VERSION}.tar.bz2" -C /tmp
+WORKDIR /tmp/pdns-${PDNS_VERSION}
 
-COPY make-pdns.conf /etc/portage/make.conf
+ENV CFLAGS="-O2 -U_FORTIFY_SOURCE -flto -pipe -static -static-libstdc++ -static-libgcc"
+ENV CPPFLAGS="${CFLAGS}"
+ENV CXXFLAGS="${CFLAGS}"
+ENV LDFLAGS=""
+ENV LUA_LIBS="/usr/lib/libluajit-5.1.a"
+
+RUN sed 's~LIBCURL=`\$_libcurl_config --libs`~LIBCURL="/usr/lib/libcurl.a /usr/lib/libcares.a /usr/lib/libnghttp2.a /usr/lib/libidn2.a /usr/lib/libpsl.a /usr/lib/libssl.a /usr/lib/libcrypto.a /lib/libz.a /usr/lib/libzstd.a /usr/lib/libbrotlidec.a /usr/lib/libbrotlicommon.a /usr/lib/libunistring.a"~' -i configure
+
+RUN ./configure \
+        --enable-static \
+        --enable-static-boost \
+        --sysconfdir=/config \
+        --with-service-user=pdns \
+        --with-service-group=pdns \
+        --with-modules="bind lua2 pipe" \
+        --with-dynmodules="" \
+        --with-lua \
+    && make -j$(nproc)
+
+RUN mkdir -p /out
+
+RUN strip --strip-all -o /out/pdns_server pdns/pdns_server && \
+    strip --strip-all -o /out/pdns_control pdns/pdns_control && \
+    upx -9 /out/pdns_server && \
+    upx -9 /out/pdns_control
 
 FROM scratch AS default
 
-#COPY --from=builder /usr/bin/pdns_control /usr/bin/pdns_control
-COPY --from=builder /usr/sbin/pdns_server /usr/sbin/pdns_server
-#COPY --from=builder /usr/bin/pdnsutil /usr/bin/pdnsutil
-COPY --from=builder /usr/lib64/powerdns /usr/lib64/powerdns
+COPY --from=builder /out /
