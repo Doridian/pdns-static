@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+if [ "${1-}" = "--libs" ]; then
+    echo "$(/usr/bin/curl-config --static-libs) -lbrotlicommon -lunistring"
+    exit 0
+fi
+
+exec /usr/bin/curl-config "$@"
