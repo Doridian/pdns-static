@@ -46,6 +46,8 @@ RUN sed 's~LIBCURL=`\$_libcurl_config --libs`~LIBCURL="/usr/lib/libcurl.a /usr/l
 RUN ./configure \
         --enable-static \
         --enable-static-boost \
+        --prefix=/ \ 
+        --runstatedir=/ \
         --sysconfdir=/config \
         --with-service-user=pdns \
         --with-service-group=pdns \
@@ -54,7 +56,8 @@ RUN ./configure \
         --with-lua \
     && make -j$(nproc)
 
-RUN mkdir -p /out
+RUN mkdir -p /out /out/lib /out/config && \
+    cp -vf /lib/ld-musl-x86_64.so.1 /out/lib/ld-musl-x86_64.so.1
 
 RUN strip --strip-all -o /out/pdns_server pdns/pdns_server && \
     strip --strip-all -o /out/pdns_control pdns/pdns_control && \
@@ -64,3 +67,5 @@ RUN strip --strip-all -o /out/pdns_server pdns/pdns_server && \
 FROM scratch AS default
 
 COPY --from=builder /out /
+
+ENTRYPOINT [ "/pdns_server" ]
