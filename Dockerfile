@@ -57,7 +57,7 @@ RUN ./configure \
         --sysconfdir=/config \
         --with-service-user=pdns \
         --with-service-group=pdns \
-        --with-modules="bind lua2" \
+        --with-modules="bind lua2 pipe" \
         --with-dynmodules="" \
         --with-lua
 
