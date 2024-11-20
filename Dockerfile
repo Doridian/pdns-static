@@ -65,7 +65,7 @@ RUN ./configure \
 
 RUN make -j$(nproc)
 
-RUN mkdir -p /out /out/config && \
+RUN mkdir -p /out /out/config /out/var/empty && \
     strip --strip-all -o /out/pdns_server pdns/pdns_server && \
     upx -9 /out/pdns_server
 
@@ -75,6 +75,7 @@ COPY --from=builder /lib/ld-musl-*.so* /lib/
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
+COPY --from=builder /sbin/nologin /sbin/nologin
 COPY --from=builder /out /
 
 ENTRYPOINT [ "/pdns_server" ]
