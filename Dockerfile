@@ -42,6 +42,7 @@ ENV CPPFLAGS="${CFLAGS}"
 ENV CXXFLAGS="${CPPFLAGS}"
 ENV LDFLAGS=""
 
+RUN adduser -D pdns -h /var/empty -s /sbin/nologin
 COPY curl-config /usr/local/bin/curl-config
 
 RUN ./configure \
@@ -67,8 +68,6 @@ RUN make -j$(nproc)
 RUN mkdir -p /out /out/config && \
     strip --strip-all -o /out/pdns_server pdns/pdns_server && \
     upx -9 /out/pdns_server
-
-RUN adduser -D pdns -h /var/empty -s /sbin/nologin
 
 FROM scratch AS default
 
