@@ -60,8 +60,7 @@ RUN ./configure \
         --with-modules="bind lua2 pipe remote" \
         --with-dynmodules="" \
         --with-lua \
-        --enable-lto || true
-
+        --enable-lto
 
 RUN make -j$(nproc)
 
